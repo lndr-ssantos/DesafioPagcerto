@@ -34,6 +34,7 @@ namespace DesafioPagcerto.Controllers
 
         // POST: api/Pagcerto
         [HttpPost]
+        [SwaggerRequestExample(typeof(TransacaoRequest), typeof(TransacaoRequestExample))]
         public IActionResult PostTransacao([FromBody] TransacaoRequest transacaoRequest)
         {
             var transacao = new Transacao(transacaoRequest);

@@ -14,6 +14,8 @@ namespace DesafioPagcerto.Model.EntityModel
         public decimal ValorRepasse { get; set; }
         public int NumeroParcelas { get; set; }
         public string DigitosCartao { get; set; }
+        public int ClientId { get; set; }
+
         private const decimal _taxaFixa = 0.9M;
 
         public Transacao() { }
@@ -25,6 +27,7 @@ namespace DesafioPagcerto.Model.EntityModel
             ValorRepasse = CalcularValorRepasse(transacaoRequest.ValorTransacao, transacaoRequest.NumeroParcelas);
             NumeroParcelas = transacaoRequest.NumeroParcelas;
             DigitosCartao = transacaoRequest.NumeroCartao.Substring(12, 4);
+            ClientId = transacaoRequest.ClienteId;
         }
 
         private decimal CalcularValorRepasse(decimal valorTransacao, int numeroParcelas)

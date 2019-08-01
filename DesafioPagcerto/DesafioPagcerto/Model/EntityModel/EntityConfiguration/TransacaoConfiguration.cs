@@ -19,6 +19,7 @@ namespace DesafioPagcerto.Model.EntityModel.EntityConfiguration
             builder.Property(t => t.ValorRepasse).HasColumnName("VALOR_REPASSE").IsRequired();
             builder.Property(t => t.NumeroParcelas).HasColumnName("NR_PARCELAS").IsRequired();
             builder.Property(t => t.DigitosCartao).HasColumnName("DIGITOS_CARTAO").IsRequired();
+            builder.Property(t => t.ClientId).HasColumnName("CLIENTE_ID").IsRequired();
         }
     }
 }
