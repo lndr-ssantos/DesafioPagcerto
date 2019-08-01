@@ -35,10 +35,13 @@ namespace DesafioPagcerto
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddSwaggerExamples();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Pagcerto API", Version = "v1" });
+                c.ExampleFilters();
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
