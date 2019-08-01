@@ -4,6 +4,7 @@ using DesafioPagcerto.Model.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DesafioPagcerto.Controllers
 {
@@ -26,10 +27,19 @@ namespace DesafioPagcerto.Controllers
         }
 
         // GET: api/Pagcerto/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        [HttpGet("{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
+        public IActionResult Get(int clienteId)
         {
-            return "value";
+            var transacoes = _context.Transacoes
+                .Where(x => x.ClientId == clienteId && x.SolicitacaoRepasseId == null).ToList();
+            if (transacoes.Count > 0)
+            {
+                return Ok(transacoes);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // POST: api/Pagcerto

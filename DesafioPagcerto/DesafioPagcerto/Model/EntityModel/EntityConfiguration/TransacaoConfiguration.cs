@@ -11,6 +11,10 @@ namespace DesafioPagcerto.Model.EntityModel.EntityConfiguration
 
             builder.HasKey(t => t.Id);
 
+            builder.HasOne(t => t.SolicitacaoRepasse)
+                .WithMany(s => s.Transacoes)
+                .HasForeignKey(t => t.SolicitacaoRepasseId);
+
             builder.Property(t => t.Id).HasColumnName("ID").ValueGeneratedOnAdd();
             builder.Property(t => t.DataTransacao).HasColumnName("DATA_TRANSACAO").IsRequired();
             builder.Property(t => t.DataRepasse).HasColumnName("DATA_REPASSE");
@@ -20,6 +24,7 @@ namespace DesafioPagcerto.Model.EntityModel.EntityConfiguration
             builder.Property(t => t.NumeroParcelas).HasColumnName("NR_PARCELAS").IsRequired();
             builder.Property(t => t.DigitosCartao).HasColumnName("DIGITOS_CARTAO").IsRequired();
             builder.Property(t => t.ClientId).HasColumnName("CLIENTE_ID").IsRequired();
+            builder.Property(t => t.SolicitacaoRepasseId).HasColumnName("SOLICITACAO_ID");
         }
     }
 }

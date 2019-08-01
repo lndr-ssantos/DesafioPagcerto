@@ -1,4 +1,5 @@
 ﻿using DesafioPagcerto.Model.ViewModel;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,6 +16,9 @@ namespace DesafioPagcerto.Model.EntityModel
         public int NumeroParcelas { get; set; }
         public string DigitosCartao { get; set; }
         public int ClientId { get; set; }
+        [JsonIgnore]
+        public SolicitacaoRepasseAntecipado SolicitacaoRepasse { get; set; }
+        public int? SolicitacaoRepasseId { get; set; }
 
         private const decimal _taxaFixa = 0.9M;
 
@@ -22,7 +26,7 @@ namespace DesafioPagcerto.Model.EntityModel
 
         public Transacao(TransacaoRequest transacaoRequest)
         {
-            DataTransacao = transacaoRequest.DataTransacao;
+            DataTransacao = DateTime.Now;
             ValorTransacao = transacaoRequest.ValorTransacao;
             ValorRepasse = CalcularValorRepasse(transacaoRequest.ValorTransacao, transacaoRequest.NumeroParcelas);
             NumeroParcelas = transacaoRequest.NumeroParcelas;
@@ -33,7 +37,7 @@ namespace DesafioPagcerto.Model.EntityModel
         private decimal CalcularValorRepasse(decimal valorTransacao, int numeroParcelas)
         {
             var valorParcela = valorTransacao / numeroParcelas;
-            return valorParcela - _taxaFixa;
+            return (valorParcela - _taxaFixa) + valorParcela;
         }
     }
 }

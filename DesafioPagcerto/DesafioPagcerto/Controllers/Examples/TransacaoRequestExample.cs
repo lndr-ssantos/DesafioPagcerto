@@ -10,7 +10,6 @@ namespace DesafioPagcerto.Controllers.Examples
         {
             return new TransacaoRequest()
             {
-                DataTransacao = DateTime.Parse("2019-07-31"),
                 NumeroCartao = "5252040005861703",
                 NumeroParcelas = 2,
                 ValorTransacao = 100.00M,
