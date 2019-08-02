@@ -15,5 +15,12 @@ namespace DesafioPagcerto.Model.EntityModel
         public string Status { get; set; }
 
         public IList<Transacao> Transacoes { get; set; }
+
+        public SolicitacaoRepasseAntecipado() { }
+
+        public SolicitacaoRepasseAntecipado(List<Transacao> transacoes)
+        {
+            Transacoes = transacoes;
+        }
     }
 }

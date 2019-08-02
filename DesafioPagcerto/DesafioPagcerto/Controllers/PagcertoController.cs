@@ -32,9 +32,11 @@ namespace DesafioPagcerto.Controllers
         {
             var transacoes = _context.Transacoes
                 .Where(x => x.ClientId == clienteId && x.SolicitacaoRepasseId == null).ToList();
+
             if (transacoes.Count > 0)
             {
-                return Ok(transacoes);
+                var propostasAntecipacao = new AntecipacoesDisponiveisResponse(transacoes);
+                return Ok(propostasAntecipacao);
             }
             else
             {
@@ -44,6 +46,7 @@ namespace DesafioPagcerto.Controllers
 
         // POST: api/Pagcerto
         [HttpPost]
+        [Route("transacao")]
         [SwaggerRequestExample(typeof(TransacaoRequest), typeof(TransacaoRequestExample))]
         public IActionResult PostTransacao([FromBody] TransacaoRequest transacaoRequest)
         {
@@ -52,6 +55,14 @@ namespace DesafioPagcerto.Controllers
             _context.SaveChanges();
           
             return Created("Transacao", transacao);
+        }
+
+        [HttpPost]
+        [Route("solicitacao")]
+        [SwaggerRequestExample(typeof(SolicitacaoAntecipacaoRequest), typeof(SolicitacaoAntecipacaoRequestExample))]
+        public IActionResult PostSolicitacao([FromBody] SolicitacaoAntecipacaoRequest solicitacaoAntecipacaoRequest)
+        {
+            return Ok(solicitacaoAntecipacaoRequest);
         }
 
         // PUT: api/Pagcerto/5

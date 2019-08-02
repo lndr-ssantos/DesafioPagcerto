@@ -37,7 +37,19 @@ namespace DesafioPagcerto.Model.EntityModel
         private decimal CalcularValorRepasse(decimal valorTransacao, int numeroParcelas)
         {
             var valorParcela = valorTransacao / numeroParcelas;
-            return (valorParcela - _taxaFixa) + valorParcela;
+            decimal valorRepasse = 0;
+            for (var i = 0; i < numeroParcelas; i++)
+            {
+                if (i == 0)
+                {
+                    valorRepasse += (valorParcela - _taxaFixa);
+                }
+                else
+                {
+                    valorRepasse += valorParcela;
+                }
+            }
+            return valorRepasse;
         }
     }
 }
