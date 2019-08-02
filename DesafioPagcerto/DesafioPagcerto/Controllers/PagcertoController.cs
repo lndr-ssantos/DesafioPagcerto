@@ -100,10 +100,21 @@ namespace DesafioPagcerto.Controllers
             return NoContent();
         }
 
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPut("atualizar-situacao/{id}")]
+        [SwaggerRequestExample(typeof(AtualizarSituacaoSolicitacaoRequest), typeof(AtualizarSituacaoSolicitacaoRequestExample))]
+        public IActionResult Delete(int id, [FromBody] AtualizarSituacaoSolicitacaoRequest situacao)
         {
+            var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
+
+            if (solicitacao.Status == (int)EStatus.EmAnalise && solicitacao.Situacao == null)
+            {
+                solicitacao.Situacao = situacao.Situacao;
+                solicitacao.Status = (int)EStatus.Finalizada;
+            }
+
+            _context.SaveChanges();
+            return NoContent();
+
         }
     }
 }
