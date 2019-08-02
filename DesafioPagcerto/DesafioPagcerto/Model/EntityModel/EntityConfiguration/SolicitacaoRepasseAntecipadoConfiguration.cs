@@ -17,6 +17,7 @@ namespace DesafioPagcerto.Model.EntityModel.EntityConfiguration
             builder.Property(t => t.ValorTotalTransacoes).HasColumnName("VALOR_TOTAL_TRANSACOES").IsRequired();
             builder.Property(t => t.ValorTotalRepasse).HasColumnName("VALOR_TOTAL_REPASSE").IsRequired();
             builder.Property(t => t.Status).HasColumnName("STATUS").IsRequired();
+            builder.Property(t => t.Situacao).HasColumnName("SITUACAO");
         }
     }
 }

@@ -15,6 +15,7 @@ namespace DesafioPagcerto.Model.EntityModel
         public decimal ValorTotalTransacoes { get; set; }
         public decimal ValorTotalRepasse { get; set; }
         public int Status { get; set; }
+        public int? Situacao { get; set; }
 
         public IList<Transacao> Transacoes { get; set; }
 

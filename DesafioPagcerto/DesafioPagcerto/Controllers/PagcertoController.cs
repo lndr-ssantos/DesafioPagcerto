@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
 using System.Linq;
+using static DesafioPagcerto.Model.EntityModel.SolicitacaoRepasseAntecipado;
 
 namespace DesafioPagcerto.Controllers
 {
@@ -83,10 +84,20 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        // PUT: api/Pagcerto/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("atender-solicitacao/{id}")]
+        //[Route("atualizar-status-solicitacao")]
+        [SwaggerRequestExample(typeof(AtualizarStatusSolicitacaoRequest), typeof(AtualizarStatusSolicitacaoRequestExample))]
+        public IActionResult Put(int id, [FromBody] AtualizarStatusSolicitacaoRequest status)
         {
+            var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
+
+            if (status.Status == 2 && solicitacao.Status == (int)EStatus.AguardandoAnalise)
+            {
+                solicitacao.Status = status.Status;
+            }
+
+            _context.SaveChanges();
+            return NoContent();
         }
 
         // DELETE: api/ApiWithActions/5
