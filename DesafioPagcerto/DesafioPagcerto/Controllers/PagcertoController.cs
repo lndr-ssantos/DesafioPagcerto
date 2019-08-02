@@ -62,7 +62,25 @@ namespace DesafioPagcerto.Controllers
         [SwaggerRequestExample(typeof(SolicitacaoAntecipacaoRequest), typeof(SolicitacaoAntecipacaoRequestExample))]
         public IActionResult PostSolicitacao([FromBody] SolicitacaoAntecipacaoRequest solicitacaoAntecipacaoRequest)
         {
-            return Ok(solicitacaoAntecipacaoRequest);
+            var transacoes = _context.Transacoes
+                .Where(x => solicitacaoAntecipacaoRequest.Transacoes.Contains(x.Id) 
+                        && x.SolicitacaoRepasseId == null
+                        && x.ClientId == solicitacaoAntecipacaoRequest.ClienteId)
+                .ToList();
+
+            if (transacoes.Count > 0)
+            {
+                var solicitacaoRepasse = new SolicitacaoRepasseAntecipado(transacoes);
+
+                _context.SolicitacaoRepasseAntecipados.Add(solicitacaoRepasse);
+
+                _context.SaveChanges();
+                return Created("Solicitacao", solicitacaoRepasse);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // PUT: api/Pagcerto/5

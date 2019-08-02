@@ -12,7 +12,7 @@ namespace DesafioPagcerto.Model.EntityModel.EntityConfiguration
             builder.HasKey(t => t.Id);
 
             builder.Property(t => t.Id).HasColumnName("ID").ValueGeneratedOnAdd();
-            builder.Property(t => t.DataSolicitacao).HasColumnName("DATA_SOLICATACAO").IsRequired();
+            builder.Property(t => t.DataSolicitacao).HasColumnName("DATA_SOLICITACAO").IsRequired();
             builder.Property(t => t.DataAnalise).HasColumnName("DATA_ANALISE").IsRequired();
             builder.Property(t => t.ValorTotalTransacoes).HasColumnName("VALOR_TOTAL_TRANSACOES").IsRequired();
             builder.Property(t => t.ValorTotalRepasse).HasColumnName("VALOR_TOTAL_REPASSE").IsRequired();
