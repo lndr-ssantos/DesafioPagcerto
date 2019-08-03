@@ -4,6 +4,7 @@ using DesafioPagcerto.Model.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static DesafioPagcerto.Model.EntityModel.SolicitacaoRepasseAntecipado;
@@ -37,10 +38,9 @@ namespace DesafioPagcerto.Controllers
                 .Single();
 
             return Ok(solicitacao);
-                
         }
 
-        [HttpGet("{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
+        [HttpGet("solicitacao-disponivel-antecipacao/{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
         public IActionResult Get(int clienteId)
         {
             var transacoes = _context.Transacoes
@@ -55,6 +55,32 @@ namespace DesafioPagcerto.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpGet("solicitacoes-por-periodo")]
+        public IActionResult GetSolicitacoesByPeriodo(DateTime dataInicio, DateTime dataFim)
+        {
+            if (dataFim < dataInicio)
+            {
+                var dataAux = dataInicio;
+                dataInicio = dataFim;
+                dataFim = dataAux;
+            }
+
+            var solicitacoes = _context.SolicitacaoRepasseAntecipados
+                .Where(x => x.DataSolicitacao.Date >= dataInicio && x.DataSolicitacao.Date <= dataFim)
+                .Include(t => t.Transacoes)
+                .Select(x => new DetalhesSolicitacaoResponse()
+                {
+                    Id = x.Id,
+                    Situacao = x.Situacao ?? 0,
+                    Status = x.Status,
+                    DataSolicitacao = x.DataSolicitacao.Date,
+                    Transacoes = (List<Transacao>)x.Transacoes
+                })
+                .ToList();
+
+            return Ok(solicitacoes);
         }
 
         [HttpPost]
