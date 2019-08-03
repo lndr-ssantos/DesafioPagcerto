@@ -25,67 +25,97 @@ namespace DesafioPagcerto.Controllers
         [HttpGet("solicitacao/{id}", Name = "Consultar detalhes de solicitação")]
         public IActionResult GetDetalhesSolicitacao(int id)
         {
-            var solicitacao = _context.SolicitacaoRepasseAntecipados
-                .Where(x => x.Id == id)
-                .Include(t => t.Transacoes)
-                .Select(x => new DetalhesSolicitacaoResponse()
-                {
-                    Id = x.Id,
-                    Situacao = x.Situacao ?? 0,
-                    Status = x.Status,
-                    DataAnaliseInicio = x.DataAnaliseInicio,
-                    DataAnaliseFim = x.DataAnaliseFim,
-                    DataSolicitacao = x.DataSolicitacao,
-                    Transacoes = (List<Transacao>)x.Transacoes
-                })
-                .Single();
+            try
+            {
+                var solicitacao = _context.SolicitacaoRepasseAntecipados
+                        .Where(x => x.Id == id)
+                        .Include(t => t.Transacoes)
+                        .Select(x => new DetalhesSolicitacaoResponse()
+                        {
+                            Id = x.Id,
+                            Situacao = x.Situacao ?? 0,
+                            Status = x.Status,
+                            DataAnaliseInicio = x.DataAnaliseInicio,
+                            DataAnaliseFim = x.DataAnaliseFim,
+                            DataSolicitacao = x.DataSolicitacao,
+                            Transacoes = (List<Transacao>)x.Transacoes
+                        })
+                        .Single();
 
-            return Ok(solicitacao);
+                if (solicitacao != null)
+                {
+                    return Ok(solicitacao);
+                }
+
+                return NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("solicitacao-disponivel-antecipacao/{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
-        public IActionResult Get(int clienteId)
+        public IActionResult GetTransacoesDisponiveisParaAntecipacao(int clienteId)
         {
-            var transacoes = _context.Transacoes
-                .Where(x => x.ClientId == clienteId && x.SolicitacaoRepasseId == null).ToList();
+            try
+            {
+                var transacoes = _context.Transacoes
+                        .Where(x => x.ClientId == clienteId && x.SolicitacaoRepasseId == null).ToList();
 
-            if (transacoes.Count > 0)
-            {
-                var propostasAntecipacao = new AntecipacoesDisponiveisResponse(transacoes);
-                return Ok(propostasAntecipacao);
+                if (transacoes.Count > 0)
+                {
+                    var propostasAntecipacao = new AntecipacoesDisponiveisResponse(transacoes);
+                    return Ok(propostasAntecipacao);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch (Exception)
             {
-                return NotFound();
+                return BadRequest();
             }
         }
 
         [HttpGet("solicitacoes-por-periodo")]
         public IActionResult GetSolicitacoesByPeriodo(DateTime dataInicio, DateTime dataFim)
         {
-            if (dataFim < dataInicio)
+            try
             {
-                var dataAux = dataInicio;
-                dataInicio = dataFim;
-                dataFim = dataAux;
-            }
-
-            var solicitacoes = _context.SolicitacaoRepasseAntecipados
-                .Where(x => x.DataSolicitacao.Date >= dataInicio && x.DataSolicitacao.Date <= dataFim)
-                .Include(t => t.Transacoes)
-                .Select(x => new SolicitacoesPorPeriodoResponse()
+                if (dataFim < dataInicio)
                 {
-                    Id = x.Id,
-                    Situacao = x.Situacao ?? 0,
-                    Status = x.Status,
-                    DataAnaliseInicio = x.DataAnaliseInicio,
-                    DataAnaliseFim = x.DataAnaliseFim,
-                    DataSolicitacao = x.DataSolicitacao.Date,
-                    Transacoes = (List<Transacao>)x.Transacoes
-                })
-                .ToList();
+                    var dataAux = dataInicio;
+                    dataInicio = dataFim;
+                    dataFim = dataAux;
+                }
 
-            return Ok(solicitacoes);
+                var solicitacoes = _context.SolicitacaoRepasseAntecipados
+                    .Where(x => x.DataSolicitacao.Date >= dataInicio && x.DataSolicitacao.Date <= dataFim)
+                    .Include(t => t.Transacoes)
+                    .Select(x => new SolicitacoesPorPeriodoResponse()
+                    {
+                        Id = x.Id,
+                        Situacao = x.Situacao ?? 0,
+                        Status = x.Status,
+                        DataAnaliseInicio = x.DataAnaliseInicio,
+                        DataAnaliseFim = x.DataAnaliseFim,
+                        DataSolicitacao = x.DataSolicitacao.Date,
+                        Transacoes = (List<Transacao>)x.Transacoes
+                    })
+                    .ToList();
+                if (solicitacoes.Count > 0)
+                {
+                    return Ok(solicitacoes);
+                }
+
+                return NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost]
@@ -93,11 +123,18 @@ namespace DesafioPagcerto.Controllers
         [SwaggerRequestExample(typeof(TransacaoRequest), typeof(TransacaoRequestExample))]
         public IActionResult PostTransacao([FromBody] TransacaoRequest transacaoRequest)
         {
-            var transacao = new Transacao(transacaoRequest);
-            _context.Transacoes.Add(transacao);
-            _context.SaveChanges();
-          
-            return Created("Transacao", transacao);
+            try
+            {
+                var transacao = new Transacao(transacaoRequest);
+                _context.Transacoes.Add(transacao);
+                _context.SaveChanges();
+
+                return Created("Transacao", transacao);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost]
@@ -105,24 +142,29 @@ namespace DesafioPagcerto.Controllers
         [SwaggerRequestExample(typeof(SolicitacaoAntecipacaoRequest), typeof(SolicitacaoAntecipacaoRequestExample))]
         public IActionResult PostSolicitacao([FromBody] SolicitacaoAntecipacaoRequest solicitacaoAntecipacaoRequest)
         {
-            var transacoes = _context.Transacoes
-                .Where(x => solicitacaoAntecipacaoRequest.Transacoes.Contains(x.Id) 
-                        && x.SolicitacaoRepasseId == null
-                        && x.ClientId == solicitacaoAntecipacaoRequest.ClienteId)
-                .ToList();
-
-            if (transacoes.Count > 0)
+            try
             {
-                var solicitacaoRepasse = new SolicitacaoRepasseAntecipado(transacoes);
+                var transacoes = _context.Transacoes
+                        .Where(x => solicitacaoAntecipacaoRequest.Transacoes.Contains(x.Id)
+                                && x.SolicitacaoRepasseId == null
+                                && x.ClientId == solicitacaoAntecipacaoRequest.ClienteId)
+                        .ToList();
 
-                _context.SolicitacaoRepasseAntecipados.Add(solicitacaoRepasse);
+                if (transacoes.Count > 0)
+                {
+                    var solicitacaoRepasse = new SolicitacaoRepasseAntecipado(transacoes);
 
-                _context.SaveChanges();
-                return Created("Solicitacao", solicitacaoRepasse);
-            }
-            else
-            {
+                    _context.SolicitacaoRepasseAntecipados.Add(solicitacaoRepasse);
+
+                    _context.SaveChanges();
+                    return Created("Solicitacao", solicitacaoRepasse);
+                }
+
                 return NotFound();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
             }
         }
 
@@ -131,34 +173,49 @@ namespace DesafioPagcerto.Controllers
         [SwaggerRequestExample(typeof(AtualizarStatusSolicitacaoRequest), typeof(AtualizarStatusSolicitacaoRequestExample))]
         public IActionResult Put(int id, [FromBody] AtualizarStatusSolicitacaoRequest status)
         {
-            var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
-
-            if (status.Status == 2 && solicitacao.Status == (int)EStatus.AguardandoAnalise)
+            try
             {
-                solicitacao.Status = status.Status;
-                solicitacao.DataAnaliseInicio = DateTime.Now;
-            }
+                var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
 
-            _context.SaveChanges();
-            return NoContent();
+                if (status.Status == 2 && solicitacao.Status == (int)EStatus.AguardandoAnalise)
+                {
+                    solicitacao.Status = status.Status;
+                    solicitacao.DataAnaliseInicio = DateTime.Now;
+                }
+
+                _context.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
         }
 
         [HttpPut("atualizar-situacao/{id}")]
         [SwaggerRequestExample(typeof(AtualizarSituacaoSolicitacaoRequest), typeof(AtualizarSituacaoSolicitacaoRequestExample))]
         public IActionResult Delete(int id, [FromBody] AtualizarSituacaoSolicitacaoRequest situacao)
         {
-            var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
-
-            if (solicitacao.Status == (int)EStatus.EmAnalise && solicitacao.Situacao == null)
+            try
             {
-                solicitacao.Situacao = situacao.Situacao;
-                solicitacao.Status = (int)EStatus.Finalizada;
-                solicitacao.DataAnaliseFim = DateTime.Now;
+                var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
+
+                if (solicitacao.Status == (int)EStatus.EmAnalise && solicitacao.Situacao == null)
+                {
+                    solicitacao.Situacao = situacao.Situacao;
+                    solicitacao.Status = (int)EStatus.Finalizada;
+                    solicitacao.DataAnaliseFim = DateTime.Now;
+                }
+
+                _context.SaveChanges();
+                return NoContent();
             }
-
-            _context.SaveChanges();
-            return NoContent();
-
+            catch (Exception)
+            {
+                return BadRequest();
+                throw;
+            }
         }
     }
 }
