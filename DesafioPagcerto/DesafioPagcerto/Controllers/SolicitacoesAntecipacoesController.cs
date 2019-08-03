@@ -13,16 +13,16 @@ namespace DesafioPagcerto.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PagcertoController : ControllerBase
+    public class SolicitacoesAntecipacoesController : ControllerBase
     {
         private readonly PagcertoContext _context;
 
-        public PagcertoController(PagcertoContext context)
+        public SolicitacoesAntecipacoesController(PagcertoContext context)
         {
             _context = context;
         }
 
-        [HttpGet("solicitacao/{id}", Name = "Consultar detalhes de solicitação")]
+        [HttpGet("solicitacoes-atencipacoes/{id}", Name = "Consultar detalhes de solicitação")]
         public IActionResult GetDetalhesSolicitacao(int id)
         {
             try
@@ -55,7 +55,7 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        [HttpGet("solicitacao-disponivel-antecipacao/{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
+        [HttpGet("solicitacoes-atencipacoes-disponiveis/{clienteId}", Name = "Obter transações disponíveis para antecipacao")]
         public IActionResult GetTransacoesDisponiveisParaAntecipacao(int clienteId)
         {
             try
@@ -79,7 +79,7 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        [HttpGet("solicitacoes-por-periodo")]
+        [HttpGet("solicitacoes-atencipacoes-por-periodo")]
         public IActionResult GetSolicitacoesByPeriodo(DateTime dataInicio, DateTime dataFim)
         {
             try
@@ -119,26 +119,7 @@ namespace DesafioPagcerto.Controllers
         }
 
         [HttpPost]
-        [Route("transacao")]
-        [SwaggerRequestExample(typeof(TransacaoRequest), typeof(TransacaoRequestExample))]
-        public IActionResult PostTransacao([FromBody] TransacaoRequest transacaoRequest)
-        {
-            try
-            {
-                var transacao = new Transacao(transacaoRequest);
-                _context.Transacoes.Add(transacao);
-                _context.SaveChanges();
-
-                return Created("Transacao", transacao);
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPost]
-        [Route("solicitacao")]
+        [Route("solicitacoes-antecipacoes")]
         [SwaggerRequestExample(typeof(SolicitacaoAntecipacaoRequest), typeof(SolicitacaoAntecipacaoRequestExample))]
         public IActionResult PostSolicitacao([FromBody] SolicitacaoAntecipacaoRequest solicitacaoAntecipacaoRequest)
         {
@@ -168,23 +149,23 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        [HttpPut("atender-solicitacao/{id}")]
-        //[Route("atualizar-status-solicitacao")]
-        [SwaggerRequestExample(typeof(AtualizarStatusSolicitacaoRequest), typeof(AtualizarStatusSolicitacaoRequestExample))]
-        public IActionResult Put(int id, [FromBody] AtualizarStatusSolicitacaoRequest status)
+        [HttpPut("solicitacoes-antecipacoes/{id}/atendimento/inicio")]
+        //[SwaggerRequestExample(typeof(AtualizarStatusSolicitacaoRequest), typeof(AtualizarStatusSolicitacaoRequestExample))]
+        public IActionResult PutIniciarAtendimentoSolicitacao(int id)
         {
             try
             {
                 var solicitacao = _context.SolicitacaoRepasseAntecipados.Where(x => x.Id == id).Single();
 
-                if (status.Status == 2 && solicitacao.Status == (int)EStatus.AguardandoAnalise)
+                if (solicitacao.Status == (int)EStatus.AguardandoAnalise)
                 {
-                    solicitacao.Status = status.Status;
+                    solicitacao.Status = (int)EStatus.EmAnalise;
                     solicitacao.DataAnaliseInicio = DateTime.Now;
+                    _context.SaveChanges();
+                    return NoContent();
                 }
 
-                _context.SaveChanges();
-                return NoContent();
+                return BadRequest("Análise de solicitação já iniciada");                
             }
             catch (Exception)
             {
@@ -193,9 +174,9 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        [HttpPut("atualizar-situacao/{id}")]
+        [HttpPut("solicitacoes-antecipacoes/{id}/atendimento/fim")]
         [SwaggerRequestExample(typeof(AtualizarSituacaoSolicitacaoRequest), typeof(AtualizarSituacaoSolicitacaoRequestExample))]
-        public IActionResult Delete(int id, [FromBody] AtualizarSituacaoSolicitacaoRequest situacao)
+        public IActionResult PutFinalizarSolicitacao(int id, [FromBody] AtualizarSituacaoSolicitacaoRequest situacao)
         {
             try
             {
@@ -206,10 +187,12 @@ namespace DesafioPagcerto.Controllers
                     solicitacao.Situacao = situacao.Situacao;
                     solicitacao.Status = (int)EStatus.Finalizada;
                     solicitacao.DataAnaliseFim = DateTime.Now;
+
+                    _context.SaveChanges();
+                    return NoContent();
                 }
 
-                _context.SaveChanges();
-                return NoContent();
+                return BadRequest();
             }
             catch (Exception)
             {
