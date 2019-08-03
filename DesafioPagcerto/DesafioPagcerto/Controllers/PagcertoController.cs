@@ -33,6 +33,9 @@ namespace DesafioPagcerto.Controllers
                     Id = x.Id,
                     Situacao = x.Situacao ?? 0,
                     Status = x.Status,
+                    DataAnaliseInicio = x.DataAnaliseInicio,
+                    DataAnaliseFim = x.DataAnaliseFim,
+                    DataSolicitacao = x.DataSolicitacao,
                     Transacoes = (List<Transacao>)x.Transacoes
                 })
                 .Single();
@@ -70,11 +73,13 @@ namespace DesafioPagcerto.Controllers
             var solicitacoes = _context.SolicitacaoRepasseAntecipados
                 .Where(x => x.DataSolicitacao.Date >= dataInicio && x.DataSolicitacao.Date <= dataFim)
                 .Include(t => t.Transacoes)
-                .Select(x => new DetalhesSolicitacaoResponse()
+                .Select(x => new SolicitacoesPorPeriodoResponse()
                 {
                     Id = x.Id,
                     Situacao = x.Situacao ?? 0,
                     Status = x.Status,
+                    DataAnaliseInicio = x.DataAnaliseInicio,
+                    DataAnaliseFim = x.DataAnaliseFim,
                     DataSolicitacao = x.DataSolicitacao.Date,
                     Transacoes = (List<Transacao>)x.Transacoes
                 })
@@ -131,6 +136,7 @@ namespace DesafioPagcerto.Controllers
             if (status.Status == 2 && solicitacao.Status == (int)EStatus.AguardandoAnalise)
             {
                 solicitacao.Status = status.Status;
+                solicitacao.DataAnaliseInicio = DateTime.Now;
             }
 
             _context.SaveChanges();
@@ -147,6 +153,7 @@ namespace DesafioPagcerto.Controllers
             {
                 solicitacao.Situacao = situacao.Situacao;
                 solicitacao.Status = (int)EStatus.Finalizada;
+                solicitacao.DataAnaliseFim = DateTime.Now;
             }
 
             _context.SaveChanges();

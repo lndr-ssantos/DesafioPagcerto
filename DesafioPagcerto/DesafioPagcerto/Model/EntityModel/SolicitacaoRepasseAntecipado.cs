@@ -11,7 +11,8 @@ namespace DesafioPagcerto.Model.EntityModel
     {
         public int Id { get; set; }
         public DateTime DataSolicitacao { get; set; }
-        public DateTime DataAnalise { get; set; }
+        public DateTime? DataAnaliseInicio { get; set; }
+        public DateTime? DataAnaliseFim { get; set; }
         public decimal ValorTotalTransacoes { get; set; }
         public decimal ValorTotalRepasse { get; set; }
         public int Status { get; set; }
@@ -25,7 +26,6 @@ namespace DesafioPagcerto.Model.EntityModel
         {
             Transacoes = transacoes;
             DataSolicitacao = DateTime.Now;
-            DataAnalise = DateTime.Now;
             var valorSolicitacao = new CalcularSolicitacaoRepasseAntecipado(transacoes);
             ValorTotalRepasse = valorSolicitacao.ValorTotalRepasse;
             ValorTotalTransacoes = valorSolicitacao.ValorTotalTransacoes;
