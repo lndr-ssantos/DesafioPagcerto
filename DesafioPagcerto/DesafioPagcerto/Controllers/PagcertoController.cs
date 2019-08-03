@@ -2,6 +2,7 @@
 using DesafioPagcerto.Model.EntityModel;
 using DesafioPagcerto.Model.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,25 @@ namespace DesafioPagcerto.Controllers
             _context = context;
         }
 
-        // GET: api/Pagcerto
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("solicitacao/{id}", Name = "Consultar detalhes de solicitação")]
+        public IActionResult GetDetalhesSolicitacao(int id)
         {
-            return new string[] { "value1", "value2" };
+            var solicitacao = _context.SolicitacaoRepasseAntecipados
+                .Where(x => x.Id == id)
+                .Include(t => t.Transacoes)
+                .Select(x => new DetalhesSolicitacaoResponse()
+                {
+                    Id = x.Id,
+                    Situacao = x.Situacao ?? 0,
+                    Status = x.Status,
+                    Transacoes = (List<Transacao>)x.Transacoes
+                })
+                .Single();
+
+            return Ok(solicitacao);
+                
         }
 
-        // GET: api/Pagcerto/5
         [HttpGet("{clienteId}", Name = "ObterTransacoesParaAntecipacao")]
         public IActionResult Get(int clienteId)
         {
@@ -45,7 +57,6 @@ namespace DesafioPagcerto.Controllers
             }
         }
 
-        // POST: api/Pagcerto
         [HttpPost]
         [Route("transacao")]
         [SwaggerRequestExample(typeof(TransacaoRequest), typeof(TransacaoRequestExample))]
