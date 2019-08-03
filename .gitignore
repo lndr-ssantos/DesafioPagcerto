@@ -11,7 +11,6 @@
 /wwwroot/node_modules
 
 # Development appsettings
-appsettings.Development.json
 
 # Properties
 **/Properties/
